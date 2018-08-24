@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
-import { Text, View,KeyboardAvoidingView,StyleSheet,TextInput } from 'react-native';
-import { Dialogflow_V2 } from "react-native-dialogflow"
-import { Welcome } from './Activities/RailwayActivities'
-
+import { Text, View,KeyboardAvoidingView,StyleSheet,TextInput,FlatList,Keyboard } from 'react-native';
+import { Dialogflow_V2 } from 'react-native-dialogflow'
+import { renderUserText, renderWelcomeText } from './renderText'
+import { renderPNR } from './renderPNR'
 
 class Conversation extends Component{
 
@@ -10,6 +10,7 @@ class Conversation extends Component{
     super()
     this.state = {
       userQuery : '',
+      flatListData : [],
     }
   }
 
@@ -48,25 +49,84 @@ class Conversation extends Component{
             'railwayassistant-977e1'
     );
   }
+  componentDidUpdate() {
+    this.fl.scrollToEnd({ animated : true })
+    setTimeout( () => this.fl.scrollToEnd({ animated : true }) ,500)
+  }
   requestDialogflow(text){
-    console.log(text);
+    if( text == ''){
+      return
+    }
+    this.textInput.clear();
+    item = {
+      'type' : 'userText',
+      'data' : text
+    }
+    this.setState({
+      flatListData : [...this.state.flatListData,item],
+      userQuery : ''
+    })
     Dialogflow_V2.requestQuery(
       text,
-      result=>console.log(result),
-      error=>console.log(error));
+      result => {
+        this.setState({
+          flatListData : [...this.state.flatListData,result]
+        })
+      },
+      error=>console.log(error)
+    );
   }
 
+  renderConversation(item){
+    if ( item.item.type == 'userText' ){
+      return renderUserText(item)
+    }
+    if( item.item.queryResult.action == 'input.welcome' ){
+      return renderWelcomeText(item)
+    }
+    if( item.item.queryResult.action == 'input.unknown' ){
+      return renderWelcomeText(item)
+    }
+    if ( item.item.queryResult.action.includes('pnr_status')){
+      return renderPNR(item)
+    }
+  }
+  renderSeparator = () => {
+    return (
+      <View
+        style={{
+          height: 1,
+          width: "100%",
+          backgroundColor: "#CED0CE",
+        }}
+      />
+    );
+};
   render(){
+    console.log('Render')
     return(
       <View style = {styles.container} >
-        <KeyboardAvoidingView style={styles.TextInputView} behavior = "height">
+        <View style = {styles.flatListView}>
+          <FlatList
+            data = {this.state.flatListData}
+            renderItem = { (item) => this.renderConversation(item) }
+            keyExtractor = { (item, index) => index.toString() }
+            ref = {(c) => this.fl = c}
+            onLayout = { () => this.fl.scrollToEnd( { animated: true } ) }
+            ItemSeparatorComponent={this.renderSeparator}
+          />
+        </View>
+        <View>
           <TextInput
-            style = {styles.TextInput}
+            style = { styles.TextInput }
             underlineColorAndroid = '#0ba03d'
             onChangeText = { (text) => this.setState({userQuery:text}) }
-            onSubmitEditing = { () => this.requestDialogflow(this.state.userQuery)}
+            onSubmitEditing = { () => { this.requestDialogflow(this.state.userQuery)}}
+            ref = {input => { this.textInput = input }}
+            blurOnSubmit = {false}
+            placeholder = 'Type your message here.'
           />
-        </KeyboardAvoidingView>
+        </View>
       </View>
     );
   }
@@ -75,17 +135,21 @@ const styles = StyleSheet.create(
   {
     container : {
       flex: 1,
-      bottom: 0,
+      backgroundColor : '#ffffff',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
     },
     TextInputView : {
-      position: 'absolute',
-      left: 0,
-      right: 0,
-      bottom: 0
+      flex : 1,
+    },
+    flatListView : {
+      flex : 7,
     },
     TextInput : {
-      width: '100%',
-      height: 40,
+      backgroundColor : '#ffffff',
+      borderStyle : 'solid',
+      borderColor : '#a9a9a9',
+      borderWidth : 1
     }
   }
 )

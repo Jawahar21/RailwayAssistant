@@ -1,5 +1,5 @@
 from flask import request, jsonify
-from railway_tasks import PNRActivities
+from pnr_tasks import PNRActivities
 
 class Activites:
 
@@ -15,5 +15,4 @@ class Activites:
         if activity == 'pnr_status_main':
             return PNRActivities().PNRMainActivity(webhook_req)
         if activity == 'pnr_status_number':
-            print('Here')
             return PNRActivities().PNRMainActivity(webhook_req)
