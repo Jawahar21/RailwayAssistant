@@ -22,6 +22,10 @@ export const styles = StyleSheet.create(
     MessageView : {
       paddingLeft : 10,
       paddingRight : 5
+    },
+    iconStyle : {
+      height : 30,
+      width : 30
     }
   }
 )

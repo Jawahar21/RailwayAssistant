@@ -10,7 +10,7 @@ export const renderPNR = (item) => {
     return(
       <View style = { styles.MessageContainerBot }>
         <View>
-          <Image style = {{height:40,width:40}} source = { require('./train.png') } />
+          <Image style = { styles.iconStyle } source = { require('./train.png') } />
         </View>
         <View style = {styles.MessageView}>
           <Text style = { styles.MessageText } >{response.fulfillmentText}</Text>
@@ -44,7 +44,7 @@ export const renderPNR = (item) => {
     return(
       <View style = { styles.MessageContainerBot } >
         <View>
-          <Image style = {{height:40,width:40}} source = { require('./train.png') } />
+          <Image style = { styles.iconStyle } source = { require('./train.png') } />
         </View>
         <View style = {styles.MessageView}>
           <Text style = { styles.MessageText } >{response.fulfillmentText}</Text>

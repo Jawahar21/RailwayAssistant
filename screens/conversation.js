@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
-import { Text, View,KeyboardAvoidingView,StyleSheet,TextInput,FlatList,Keyboard } from 'react-native';
+import { Text, View,StyleSheet,TextInput,FlatList,Keyboard } from 'react-native';
 import { Dialogflow_V2 } from 'react-native-dialogflow'
 import { renderUserText, renderWelcomeText } from './renderText'
 import { renderPNR } from './renderPNR'
+import ETA  from './renderETA'
 
 class Conversation extends Component{
 
@@ -10,8 +11,9 @@ class Conversation extends Component{
     super()
     this.state = {
       userQuery : '',
-      flatListData : [],
+      flatListData : []
     }
+    this.ETAPickerResponserHandler = this.ETAPickerResponserHandler.bind(this);
   }
 
   componentDidMount(){
@@ -69,6 +71,7 @@ class Conversation extends Component{
     Dialogflow_V2.requestQuery(
       text,
       result => {
+        console.log(result)
         this.setState({
           flatListData : [...this.state.flatListData,result]
         })
@@ -76,7 +79,6 @@ class Conversation extends Component{
       error=>console.log(error)
     );
   }
-
   renderConversation(item){
     if ( item.item.type == 'userText' ){
       return renderUserText(item)
@@ -90,6 +92,9 @@ class Conversation extends Component{
     if ( item.item.queryResult.action.includes('pnr_status')){
       return renderPNR(item)
     }
+    if ( item.item.queryResult.action.includes('ETA')){
+      return <ETA item = {item} action = {this.ETAPickerResponserHandler} />
+    }
   }
   renderSeparator = () => {
     return (
@@ -101,9 +106,15 @@ class Conversation extends Component{
         }}
       />
     );
-};
+  };
+  ETAPickerResponserHandler(result) {
+    console.log("this is called")
+    console.log(result)
+    this.setState({
+      flatListData : [...this.state.flatListData,result]
+    })
+  }
   render(){
-    console.log('Render')
     return(
       <View style = {styles.container} >
         <View style = {styles.flatListView}>

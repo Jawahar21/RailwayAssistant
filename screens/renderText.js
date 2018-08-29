@@ -6,9 +6,9 @@ export const renderUserText = (item) => {
   return(
     <View style = { styles.MessageContainerUser }>
       <View>
-        <Image style = {{height:40,width:40}} source = { require('./Username.png') } />
+        <Image style = { styles.iconStyle } source = { require('./Username.png') } />
       </View>
-      <View style = {styles.MessageView}>
+      <View style = { styles.MessageView }>
         <Text style = { styles.MessageText } >{item.item.data}</Text>
       </View>
     </View>
@@ -19,9 +19,9 @@ export const renderWelcomeText = (item) => {
   return(
     <View style = { styles.MessageContainerBot } >
       <View>
-        <Image style = {{height:40,width:40}} source = { require('./train.png') } />
+        <Image style = { styles.iconStyle } source = { require('./train.png') } />
       </View>
-      <View style = {styles.MessageView}>
+      <View style = { styles.MessageView }>
         <Text style = { styles.MessageText } >{item.item.queryResult.fulfillmentText}</Text>
       </View>
     </View>
