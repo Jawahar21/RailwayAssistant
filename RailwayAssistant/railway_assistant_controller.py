@@ -7,5 +7,9 @@ app = Flask(__name__)
 def webhook():
     return Activites().checkActivity()
 
+@app.route('/delayedResponse',methods = ['GET','POST'])
+def getDelayedResponse():
+    return Activites().callDelayedResoponse()
+
 if (__name__ == "__main__"):
     app.run(port = 5000)

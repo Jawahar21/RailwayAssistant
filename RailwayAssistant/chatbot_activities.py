@@ -28,5 +28,9 @@ class Activites:
         if activity == 'ETA_station_input.ETA_station_input-custom':
             return EtaActivities().EtaTrainStartDateActivity(webhook_req)
         if activity == 'ETA_station_input.ETA_train_start_date' :
-            print('here')
             return EtaActivities().ETA_Response(webhook_req)
+
+    def callDelayedResoponse(self):
+        print("Resquest HIT")
+        req_obj = request.get_json()
+        return EtaActivities().callEtaDelayedResoponse(req_obj)

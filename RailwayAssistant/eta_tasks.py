@@ -10,7 +10,34 @@ class EtaActivities:
         if ( parameters.get('train_number') ):
             if( parameters.get('station_name') ):
                 #auto complete station name
+                print( parameters.get('train_number') )
                 print( parameters.get('station_name') )
+                train_details = RailwayDB().getTrainNameNumber(parameters.get('train_number'))
+                stations = RailwayDB().getStationAutoSuggest(parameters.get('station_name'))
+                print(train_details)
+                print(stations)
+                if ( type(train_details) is dict and type(stations) is list ):
+                    return jsonify({
+                        "fulfillmentText" : "Do you mean?",
+                        "outputContexts" : outputContexts,
+                        "payload" : {
+                            "train_details" : train_details,
+                            "stations" : stations
+                        }
+                    })
+                if ( type(train_details) is not dict and type(stations) is list ):
+                    return jsonify({
+                        "fulfillmentText" : train_details,
+                    })
+                if ( type(train_details) is dict and type(stations) is not list ):
+                    return jsonify({
+                        "fulfillmentText" : stations,
+                    })
+                if ( type(train_details) is not dict and type(stations) is not list ):
+                    return jsonify({
+                        "fulfillmentText" : train_details + stations,
+                    })
+
             else :
                 return jsonify({
                     "fulfillmentText": "May I know the station name at which you are expecting the arrival?",
@@ -27,7 +54,6 @@ class EtaActivities:
                 #auto train name
                 print( parameters.get('station_name') )
             else :
-                print('Here')
                 return jsonify({
                     "fulfillmentText": "May I know the station name at which you are expecting the arrival?",
                     "outputContexts" : outputContexts,
@@ -57,32 +83,52 @@ class EtaActivities:
                 train_name = context.get('parameters').get('train_name')
                 break
         station_name = webhook_req.get('queryResult').get('parameters').get('station_name')
-        print(station_name)
-        print(train_name)
-        trains = RailwayDB().getTrainNameNumber(train_name)
-        stations = RailwayDB().getStationNameNumber(station_name)
+        return jsonify({
+            "fulfillmentText": "Wait for a moment!",
+            "outputContexts" : outputContexts,
+            "payload" : {
+                "train_name" : train_name,
+                "station_name" : station_name
+            }
+        })
+
+    def callEtaDelayedResoponse(self,data):
+        print(data)
+        trains = RailwayDB().getTrainAutoSuggest(data.get('train_name'))
+        stations = RailwayDB().getStationAutoSuggest(data.get('station_name'))
         print(trains)
         print(stations)
         if ( type(trains) is list and type(stations) is list ):
             return jsonify({
-                "fulfillmentText": "Do you mean?",
-                "outputContexts" : outputContexts,
-                "payload" : {
-                    "trains" : trains,
-                    "stations" : stations
+                "queryResult" : {
+                    "action" : "ETA_delayed_response",
+                    "fulfillmentText": "Do you mean?",
+                    "webhookPayload" : {
+                        "trains" : trains,
+                        "stations" : stations
+                    }
                 }
             })
         if ( type(trains) is list and type(stations) is not list ):
             return jsonify({
-                "fulfillmentText": stations
+                "queryResult" : {
+                    "action" : "ETA_delayed_response",
+                    "fulfillmentText": stations
+                }
             })
         if ( type(trains) is not list and type(stations) is list ):
             return jsonify({
-                "fulfillmentText": trains
+                "queryResult" : {
+                    "action" : "ETA_delayed_response",
+                    "fulfillmentText": trains
+                }
             })
         if ( type(trains) is not list and type(stations) is not list ):
             return jsonify({
-                "fulfillmentText": trains + stations
+                "queryResult" : {
+                    "action" : "ETA_delayed_response",
+                    "fulfillmentText": trains + stations
+                }
             })
 
     def EtaTrainStartDateActivity(self,webhook_req):
@@ -96,19 +142,24 @@ class EtaActivities:
         })
 
     def ETA_Response(self,webhook_req):
+        print("Here at ETA response")
         response = ''
         station_data = ''
         train_number = ''
         station_name = ''
         outputContexts = webhook_req.get('queryResult').get('outputContexts')
         date = webhook_req.get('queryResult').get('parameters').get('date')
+        print(date)
         parsed_date = date[8:10] + "-"+date[5:7]+"-"+date[0:4]
         for context in outputContexts :
             if ( 'eta_station_inputeta_auto_station_train_input-followup' in context.get('name') ):
                 train_number = int(context.get('parameters').get('train_number'))
                 station_name = context.get('parameters').get('station_name')
                 break
+        print(train_number)
+        print(parsed_date)
         data = RailwayDB().getLiveTrainStatus(train_number, parsed_date)
+        print(data)
         if data['response_code'] == 200 :
             for route in data.get('route'):
                 if( route.get('station').get('name') == station_name ) :
@@ -123,7 +174,7 @@ class EtaActivities:
                 response = position + responseText
             else :
                 response = station_name + " station is not in the route of the requested Train"
-        if data['response_code'] == 201 :
+        if data['response_code'] == 210 :
             response = "Train does not run on the date queried. Please enter correct details."
         if data['response_code'] == 230 :
             response = "Invalid date chosen."

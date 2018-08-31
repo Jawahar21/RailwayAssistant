@@ -71,13 +71,43 @@ class Conversation extends Component{
     Dialogflow_V2.requestQuery(
       text,
       result => {
-        console.log(result)
-        this.setState({
-          flatListData : [...this.state.flatListData,result]
-        })
+        this.parseDialogFlowResponse(result)
       },
-      error=>console.log(error)
+      error=> { console.log("Error situation!!!!!!");console.log(error)}
     );
+  }
+  parseDialogFlowResponse(result){
+    console.log(result)
+    if( result.queryResult.action == 'ETA_station_input' ){
+      this.setState({
+        flatListData : [...this.state.flatListData,result]
+      })
+      fetch('http://10.0.2.2:5000/delayedResponse',{
+        method:'POST',
+        headers:{
+          Accept:'application/json',
+          'Content-Type': 'application/json'
+        },
+        body:JSON.stringify({
+          train_name : result.queryResult.webhookPayload.train_name,
+          station_name : result.queryResult.webhookPayload.station_name,
+        }),
+      })
+      .then((response) => response.json())
+      .then((responseJson) => {
+          this.setState({
+            flatListData : [...this.state.flatListData,responseJson]
+          })
+      })
+      .catch((error) => {
+          console.error(error);
+        });
+    }
+    else{
+      this.setState({
+        flatListData : [...this.state.flatListData,result]
+      })
+    }
   }
   renderConversation(item){
     if ( item.item.type == 'userText' ){
@@ -113,6 +143,8 @@ class Conversation extends Component{
     this.setState({
       flatListData : [...this.state.flatListData,result]
     })
+    console.log('flatListData');
+    console.log(this.state.flatListData)
   }
   render(){
     return(

@@ -8,22 +8,28 @@ class ETA extends Component{
 
   constructor(props){
     super(props)
-    console.log(props)
-    if(props.item.item.queryResult.hasOwnProperty('webhookPayload')){
-      if ( !props.item.item.queryResult.webhookPayload.hasOwnProperty('date') ){
-        data = props.item.item.queryResult.webhookPayload
+    if ( props.item.item.queryResult.action == 'ETA_delayed_response') {
+      if ( props.item.item.queryResult.hasOwnProperty('webhookPayload') ){
+        trains = props.item.item.queryResult.webhookPayload.trains
+        stations = props.item.item.queryResult.webhookPayload.stations
         this.state = {
-          pickerTrain : data.trains[0].number,
-          pickerStation : data.stations[0].name
+          pickerTrain : trains[0].number,
+          pickerStation : stations[0].name
         }
+      }
+    }
+    if ( props.item.item.queryResult.action == 'ETA_station_input.ETA_station_input-custom'){
+      date = props.item.item.queryResult.webhookPayload.date
+      this.state = {
+        pickedDate : date[0],
       }
     }
   }
   requestDialogflow(query){
+    console.log('Hit')
     Dialogflow_V2.requestQuery(
       query,
       result => {
-        console.log(result)
         this.props.action(result)
       },
       error=>console.log(error)
@@ -31,68 +37,77 @@ class ETA extends Component{
   }
   render(){
     item = this.props.item
-    var renderETA = ''
-    if (item.item.queryResult.hasOwnProperty('webhookPayload')){
-      response = item.item.queryResult
-      if ( response.webhookPayload.hasOwnProperty('date') ){
-        dates = response.webhookPayload.date
-        console.log(dates)
-        return (
-          <View>
+    console.log(item)
+    if ( item.item.queryResult.action == 'ETA_delayed_response'){
+      if ( item.item.queryResult.hasOwnProperty('webhookPayload') ){
+        trains = item.item.queryResult.webhookPayload.trains
+        stations = item.item.queryResult.webhookPayload.stations
+        return(
+          <View >
+            <Text>{item.item.queryResult.fulfillmentText}</Text>
+            <Picker
+              selectedValue = {this.state.pickerTrain}
+              prompt = "Select Train"
+              mode = 'dialog'
+              onValueChange = { (itemValue, itemIndex) => {this.setState({pickerTrain: itemValue})} }
+            >
             {
-              dates.map((p,i) =>{
-                console.log(p)
+              trains.map((p,i) => {
                 return(
-                  <TouchableOpacity onPress = { () => this.requestDialogflow(p) } key = {i}>
-                    <View>
-                      <Text>{p}</Text>
-                    </View>
-                  </TouchableOpacity>
+                  <Picker.Item key={i} value={p.number} label={p.name + "-" + p.number} />
                 )
               })
             }
+            </Picker>
+            <Picker
+              selectedValue = { this.state.pickerStation }
+              prompt="Select Station"
+              mode='dialog'
+              onValueChange = {(itemValue, itemIndex) => this.setState( { pickerStation : itemValue } ) }
+            >
+            {
+              stations.map((p,i) => {
+                return(
+                  <Picker.Item key={i} value={p.name} label={p.name} />
+                )
+              })
+            }
+            </Picker>
+            <TouchableOpacity onPress = { () => this.requestDialogflow(this.state.pickerTrain +" "+this.state.pickerStation) } >
+              <View>
+                <Text>Confirm</Text>
+              </View>
+            </TouchableOpacity>
           </View>
         )
       }
-      trains = response.webhookPayload.trains
-      stations = response.webhookPayload.stations
-      return(
-        <View >
-          <Picker
-            selectedValue = {this.state.pickerTrain}
-            prompt = "Select Train"
-            mode = 'dialog'
-            onValueChange = { (itemValue, itemIndex) => {this.setState({pickerTrain: itemValue})} }
-          >
-          {
-            trains.map((p,i) => {
-              return(
-                <Picker.Item key={i} value={p.number} label={p.name + "-" + p.number} />
-              )
-            })
-          }
-          </Picker>
-          <Picker
-            selectedValue = { this.state.pickerStation }
-            prompt="Select Station"
-            mode='dialog'
-            onValueChange = {(itemValue, itemIndex) => this.setState( { pickerStation : itemValue } ) }
-          >
-          {
-            stations.map((p,i) => {
-              return(
-                <Picker.Item key={i} value={p.name} label={p.name} />
-              )
-            })
-          }
-          </Picker>
-          <TouchableOpacity onPress = { () => this.requestDialogflow(this.state.pickerTrain +" "+this.state.pickerStation) } >
-            <View>
-              <Text>Confirm</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-      )
+    }
+    if (item.item.queryResult.action == 'ETA_station_input.ETA_station_input-custom'){
+        dates = item.item.queryResult.webhookPayload.date
+        return(
+          <View >
+            <Text>{item.item.queryResult.fulfillmentText}</Text>
+            <Picker
+              selectedValue = {this.state.pickedDate}
+              prompt = "Select Date"
+              mode = 'dialog'
+              onValueChange = { (itemValue, itemIndex) => {this.setState({pickedDate: itemValue})} }
+            >
+            {
+              dates.map( (p,i) => {
+                return(
+                  <Picker.Item key = {i} value = {p} label = {p} />
+                )
+              })
+            }
+            </Picker>
+            <TouchableOpacity onPress = { () => this.requestDialogflow(this.state.pickedDate) } >
+              <View>
+                <Text>Confirm</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        )
     }
     return(
       renderWelcomeText(item)

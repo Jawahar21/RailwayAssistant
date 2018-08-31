@@ -47,18 +47,107 @@ class RailwayDB:
         else:
             return False
 
-    def getTrainNameNumber(self,train_name):
+    def getTrainNameNumber(self,train_detail):
+        api_key = '626n1cabf5'
+        base_url = 'https://api.railwayapi.com/v2/name-number/train/'
+        complete_url = base_url + str(int(train_detail)) + "/apikey/" + api_key + "/"
+        print(complete_url)
+        # response_ob = requests.get(complete_url)
+        # result = response_ob.json()
+        # result = {
+        #   "train": {
+        #     "name": None,
+        #     "days": [],
+        #     "classes": [],
+        #     "number": None
+        #   },
+        #   "debit": 1,
+        #   "response_code": 404
+        # }
+        result = {
+          "response_code": 200,
+          "debit" : 1,
+          "train": {
+            "number": "12155",
+            "name": "BHOPAL EXPRESS",
+            "days": [
+              {
+                "day-code": "MON",
+                "runs": "Y"
+              },
+              {
+                "day-code": "TUE",
+                "runs": "Y"
+              },
+              {
+                "day-code": "WED",
+                "runs": "Y"
+              },
+              {
+                "day-code": "THU",
+                "runs": "Y"
+              },
+              {
+                "day-code": "FRI",
+                "runs": "Y"
+              },
+              {
+                "day-code": "SAT",
+                "runs": "Y"
+              },
+              {
+                "day-code": "SUN",
+                "runs": "Y"
+              }
+            ]
+          }
+        }
+        print( result )
+        if result["response_code"] == 200 :
+            return {
+                "name" : result.get('train').get('name'),
+                "number" : result.get('train').get('number')
+            }
+        if result["response_code"] == 404 :
+            return "Oops! Train not found for the entered train number."
+        if result["response_code"] == 405 :
+            return "Server Not available. Inconvinence regretted."
+
+    def getTrainAutoSuggest(self,train_name):
         trains = []
         api_key = '626n1cabf5'
         base_url = 'https://api.railwayapi.com/v2/suggest-train/train/'
         complete_url = base_url + str(train_name) + "/apikey/" + api_key + "/"
         print(complete_url)
-        response_ob = requests.get(complete_url)
-        result = response_ob.json()
+        # response_ob = requests.get(complete_url)
+        # result = response_ob.json()
+        result = {
+          "response_code": 200,
+          "debit": 1,
+          "total": 4,
+          "trains": [
+            {
+              "number": "12559",
+              "name": "SHIV GANGA EXP"
+            },
+            {
+              "number": "12560",
+              "name": "SHIV GANGA EXP"
+            },
+            {
+              "number": "52451",
+              "name": "SHIVALK DLX EXP"
+            },
+            {
+              "number": "52452",
+              "name": "SHIVALK DLX EXP"
+            }
+          ]
+        }
         print(result)
         if result["response_code"] == 200 :
             if len( result['trains'] ) == 0 :
-                return "No Trains found for the entered Train Name"
+                return "No Trains found for the entered Train Name."
             for train in result.get('trains'):
                 trains.append({
                     'name' : train.get('name'),
@@ -70,18 +159,39 @@ class RailwayDB:
         if result["response_code"] == 405 :
             return "Server Not available. Inconvinence regretted."
 
-    def getStationNameNumber(self,station_name):
+    def getStationAutoSuggest(self,station_name):
         stations = []
         api_key = '626n1cabf5'
         base_url = 'https://api.railwayapi.com/v2/suggest-station/name/'
         complete_url = base_url + str(station_name) + "/apikey/" + api_key + "/"
         print(complete_url)
-        response_ob = requests.get(complete_url)
-        result = response_ob.json()
+        # response_ob = requests.get(complete_url)
+        # result = response_ob.json()
+        result = {
+          "stations": [],
+          "response_code": 200,
+          "debit": 1
+        }
+        result = {
+          "response_code": 200,
+          "debit" : 1,
+          "total": 2,
+          "stations": [
+            {
+              "name": "MUMBAI CST",
+              "code": "CSTM"
+            },
+            {
+              "name": "MUMBAI CENTRAL",
+              "code": "BCT"
+            }
+          ]
+        }
+
         print(result)
         if result["response_code"] == 200 :
             if len( result['stations'] ) == 0 :
-                return "No Stations found for the entered Station Name"
+                return "No Stations found for the entered Station Name."
             for station in result.get('stations'):
                 stations.append({
                     'name' : station.get('name'),
@@ -96,6 +206,7 @@ class RailwayDB:
         api_key = '626n1cabf5'
         base_url = 'https://api.railwayapi.com/v2/live/train/'
         complete_url = base_url + str(train_number) + "/date/" + str(date) + "/apikey/" + api_key + "/"
+        print(complete_url)
         response_ob = requests.get(complete_url)
         result = response_ob.json()
         return result
