@@ -17,7 +17,8 @@ export const styles = StyleSheet.create(
       backgroundColor : '#e0ffff'
     },
     MessageText : {
-      fontSize : 18
+      fontSize : 18,
+      color : '#000000'
     },
     MessageView : {
       paddingLeft : 10,

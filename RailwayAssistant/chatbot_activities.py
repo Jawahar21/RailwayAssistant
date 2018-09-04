@@ -29,6 +29,16 @@ class Activites:
             return EtaActivities().EtaTrainStartDateActivity(webhook_req)
         if activity == 'ETA_station_input.ETA_train_start_date' :
             return EtaActivities().ETA_Response(webhook_req)
+        if activity == 'ETA_main_train_number_station_autocorrect' :
+            return EtaActivities().EtaTrainStartDateActivity(webhook_req)
+        if activity == 'ETA_main_train_start_date' :
+            return EtaActivities().ETA_Response(webhook_req)
+        if activity == 'ETA_train_input':
+            return EtaActivities().EtaTrainActivity(webhook_req)
+        if activity == 'ETA_train_input.ETA_train_input-custom':
+            return EtaActivities().EtaTrainStartDateActivity(webhook_req)
+        if activity == 'ETA_train_input.ETA_train_startdate' :
+            return EtaActivities().ETA_Response(webhook_req)
 
     def callDelayedResoponse(self):
         print("Resquest HIT")

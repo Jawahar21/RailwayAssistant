@@ -8,7 +8,7 @@ export const renderPNR = (item) => {
   if (response.hasOwnProperty('webhookPayload')){
     data = response.webhookPayload
     return(
-      <View style = { styles.MessageContainerBot }>
+      <View style = { styles.MessageContainerBot } >
         <View>
           <Image style = { styles.iconStyle } source = { require('./train.png') } />
         </View>

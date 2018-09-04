@@ -76,37 +76,42 @@ class Conversation extends Component{
       error=> { console.log("Error situation!!!!!!");console.log(error)}
     );
   }
+  fetchActualTrainStationData(result){
+    fetch('https://acf0eb4b.ngrok.io/delayedResponse',{
+      method:'POST',
+      headers:{
+        Accept:'application/json',
+        'Content-Type': 'application/json'
+      },
+      body:JSON.stringify({
+        train_name : result.queryResult.webhookPayload.train_name,
+        station_name : result.queryResult.webhookPayload.station_name,
+      }),
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+        this.setState({
+          flatListData : [...this.state.flatListData,responseJson]
+        })
+    })
+    .catch((error) => {
+        console.error(error);
+      });
+  }
   parseDialogFlowResponse(result){
     console.log(result)
+    this.setState({
+      flatListData : [...this.state.flatListData,result]
+    })
     if( result.queryResult.action == 'ETA_station_input' ){
-      this.setState({
-        flatListData : [...this.state.flatListData,result]
-      })
-      fetch('http://10.0.2.2:5000/delayedResponse',{
-        method:'POST',
-        headers:{
-          Accept:'application/json',
-          'Content-Type': 'application/json'
-        },
-        body:JSON.stringify({
-          train_name : result.queryResult.webhookPayload.train_name,
-          station_name : result.queryResult.webhookPayload.station_name,
-        }),
-      })
-      .then((response) => response.json())
-      .then((responseJson) => {
-          this.setState({
-            flatListData : [...this.state.flatListData,responseJson]
-          })
-      })
-      .catch((error) => {
-          console.error(error);
-        });
+      this.fetchActualTrainStationData(result)
     }
-    else{
-      this.setState({
-        flatListData : [...this.state.flatListData,result]
-      })
+    if( result.queryResult.action == 'ETA_main' || result.queryResult.action == 'ETA_train_input' ){
+      if ( result.queryResult.hasOwnProperty('webhookPayload')){
+        if ( result.queryResult.webhookPayload.actual_data == false){
+          this.fetchActualTrainStationData(result)
+        }
+      }
     }
   }
   renderConversation(item){

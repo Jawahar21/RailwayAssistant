@@ -5,6 +5,7 @@ class EtaActivities:
 
 
     def EtaMainActivity(self,webhook_req):
+        trains = []
         parameters = webhook_req.get('queryResult').get('parameters')
         outputContexts = webhook_req.get('queryResult').get('outputContexts')
         if ( parameters.get('train_number') ):
@@ -12,30 +13,33 @@ class EtaActivities:
                 #auto complete station name
                 print( parameters.get('train_number') )
                 print( parameters.get('station_name') )
-                train_details = RailwayDB().getTrainNameNumber(parameters.get('train_number'))
+                train_detail = RailwayDB().getTrainNameNumber(parameters.get('train_number'))
                 stations = RailwayDB().getStationAutoSuggest(parameters.get('station_name'))
-                print(train_details)
+                print(train_detail)
                 print(stations)
-                if ( type(train_details) is dict and type(stations) is list ):
+                trains.append(train_detail)
+                print(trains)
+                if ( type(trains) is list and type(stations) is list ):
                     return jsonify({
                         "fulfillmentText" : "Do you mean?",
                         "outputContexts" : outputContexts,
                         "payload" : {
-                            "train_details" : train_details,
+                            "actual_data" : True,
+                            "trains" : trains,
                             "stations" : stations
                         }
                     })
-                if ( type(train_details) is not dict and type(stations) is list ):
+                if ( type(trains) is not list and type(stations) is list ):
                     return jsonify({
-                        "fulfillmentText" : train_details,
+                        "fulfillmentText" : trains,
                     })
-                if ( type(train_details) is dict and type(stations) is not list ):
+                if ( type(trains) is list and type(stations) is not list ):
                     return jsonify({
                         "fulfillmentText" : stations,
                     })
-                if ( type(train_details) is not dict and type(stations) is not list ):
+                if ( type(trains) is not list and type(stations) is not list ):
                     return jsonify({
-                        "fulfillmentText" : train_details + stations,
+                        "fulfillmentText" : trains + stations,
                     })
 
             else :
@@ -47,11 +51,22 @@ class EtaActivities:
                         "languageCode": "en-US",
                     }
                 })
-                # call station name input intent
+
         elif ( parameters.get( 'train_name' ) ):
             if( parameters.get('station_name') ):
                 #auto complete station name
                 #auto train name
+                train_name = webhook_req.get('queryResult').get('parameters').get('train_name')
+                station_name = webhook_req.get('queryResult').get('parameters').get('station_name')
+                return jsonify({
+                    "fulfillmentText": "Wait for a moment!",
+                    "outputContexts" : outputContexts,
+                    "payload" : {
+                        "actual_data" : False,
+                        "train_name" : train_name,
+                        "station_name" : station_name
+                    }
+                })
                 print( parameters.get('station_name') )
             else :
                 return jsonify({
@@ -64,6 +79,14 @@ class EtaActivities:
                 })
                 # call station name input intent
         elif ( parameters.get('station_name') ) :
+            return jsonify({
+                "fulfillmentText": "May I know the train name or number which you are expecting the arrival?",
+                "outputContexts" : outputContexts,
+                "followupEventInput": {
+                    "name": "ETA_fallback_error_train",
+                    "languageCode": "en-US",
+                }
+            })
             # auto complete station name
             # call train name input intent
             pass
@@ -87,10 +110,62 @@ class EtaActivities:
             "fulfillmentText": "Wait for a moment!",
             "outputContexts" : outputContexts,
             "payload" : {
+                "actual_data" : False,
                 "train_name" : train_name,
                 "station_name" : station_name
             }
         })
+
+    def EtaTrainActivity(self,webhook_req):
+        station_name = ''
+        parameters = webhook_req.get('queryResult').get('parameters')
+        outputContexts = webhook_req.get('queryResult').get('outputContexts')
+        for context in outputContexts :
+            if ( 'eta-followup' in context.get('name') ):
+                station_name = context.get('parameters').get('station_name')
+                break
+        if( webhook_req.get('queryResult').get('parameters').get('train_number') ):
+            trains = []
+            train_number = webhook_req.get('queryResult').get('parameters').get('train_number')
+            train_detail = RailwayDB().getTrainNameNumber(parameters.get('train_number'))
+            stations = RailwayDB().getStationAutoSuggest(parameters.get('station_name'))
+            print(train_detail)
+            print(stations)
+            trains.append(train_detail)
+            print(trains)
+            if ( type(trains) is list and type(stations) is list ):
+                return jsonify({
+                    "fulfillmentText" : "Do you mean?",
+                    "outputContexts" : outputContexts,
+                    "payload" : {
+                        "actual_data" : True,
+                        "trains" : trains,
+                        "stations" : stations
+                    }
+                })
+            if ( type(trains) is not list and type(stations) is list ):
+                return jsonify({
+                    "fulfillmentText" : trains,
+                })
+            if ( type(trains) is list and type(stations) is not list ):
+                return jsonify({
+                    "fulfillmentText" : stations,
+                })
+            if ( type(trains) is not list and type(stations) is not list ):
+                return jsonify({
+                    "fulfillmentText" : trains + stations,
+                })
+        else :
+            train_name = webhook_req.get('queryResult').get('parameters').get('train_name')
+            return jsonify({
+                "fulfillmentText": "Wait for a moment!",
+                "outputContexts" : outputContexts,
+                "payload" : {
+                    "actual_data" : False,
+                    "train_name" : train_name,
+                    "station_name" : station_name
+                }
+            })
 
     def callEtaDelayedResoponse(self,data):
         print(data)
@@ -104,6 +179,7 @@ class EtaActivities:
                     "action" : "ETA_delayed_response",
                     "fulfillmentText": "Do you mean?",
                     "webhookPayload" : {
+                        "actual_data" : True,
                         "trains" : trains,
                         "stations" : stations
                     }
@@ -156,6 +232,14 @@ class EtaActivities:
                 train_number = int(context.get('parameters').get('train_number'))
                 station_name = context.get('parameters').get('station_name')
                 break
+            if ( 'eta_train_station_autocorrect-followup' in context.get('name') ):
+                train_number = int(context.get('parameters').get('train_number'))
+                station_name = context.get('parameters').get('station_name')
+                break
+            if ( 'eta_train_inputeta_station_train_autocorrect-followup' in context.get('name') ):
+                train_number = int(context.get('parameters').get('train_number'))
+                station_name = context.get('parameters').get('station_name')
+                break
         print(train_number)
         print(parsed_date)
         data = RailwayDB().getLiveTrainStatus(train_number, parsed_date)
@@ -168,9 +252,9 @@ class EtaActivities:
             position = data['position']
             if ( station_data ):
                 if station_data["scharr"] == "Source" :
-                    responseText = "Train reaches " + station_name + " station" + " on " + station_data['actarr_date'] + " ," + station_data['schdep']
+                    responseText = "It reaches " + station_name + " station" + " on " + station_data['actarr_date'] + " ," + station_data['schdep']
                 else :
-                    responseText = "Train reaches " + station_name + " station" + " on " + station_data['actarr_date'] + " ," + station_data['actarr']
+                    responseText = "It reaches " + station_name + " station" + " on " + station_data['actarr_date'] + " ," + station_data['actarr']
                 response = position + responseText
             else :
                 response = station_name + " station is not in the route of the requested Train"
