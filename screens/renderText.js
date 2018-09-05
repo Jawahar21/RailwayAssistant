@@ -1,14 +1,14 @@
 import React, {Component} from 'react';
-import { Text, View, StyleShee, Image } from 'react-native';
-import {styles} from './message_style'
+import { Text, View } from 'react-native';
+import { styles } from './message_style'
+import UserLogo from './userLogo'
+import TrainLogo from './TrainLogo'
 
 export const renderUserText = (item) => {
   return(
     <View style = { styles.MessageContainerUser }>
-      <View>
-        <Image style = { styles.iconStyle } source = { require('./Username.png') } />
-      </View>
-      <View style = { styles.MessageView }>
+      <UserLogo />
+      <View style = { styles.MessageView } >
         <Text style = { styles.MessageText } >{item.item.data}</Text>
       </View>
     </View>
@@ -18,9 +18,7 @@ export const renderUserText = (item) => {
 export const renderWelcomeText = (item) => {
   return(
     <View style = { styles.MessageContainerBot } >
-      <View>
-        <Image style = { styles.iconStyle } source = { require('./train.png') } />
-      </View>
+      <TrainLogo />
       <View style = { styles.MessageView }>
         <Text style = { styles.MessageText } >{item.item.queryResult.fulfillmentText}</Text>
       </View>

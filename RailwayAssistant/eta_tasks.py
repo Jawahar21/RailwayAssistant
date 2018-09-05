@@ -39,7 +39,7 @@ class EtaActivities:
                     })
                 if ( type(trains) is not list and type(stations) is not list ):
                     return jsonify({
-                        "fulfillmentText" : trains + stations,
+                        "fulfillmentText" : "Oops! Looks like there are no trains and stations like you mentioned",
                     })
 
             else :
@@ -153,7 +153,7 @@ class EtaActivities:
                 })
             if ( type(trains) is not list and type(stations) is not list ):
                 return jsonify({
-                    "fulfillmentText" : trains + stations,
+                    "fulfillmentText" : "Oops! Looks like there are no trains and stations like you mentioned",
                 })
         else :
             train_name = webhook_req.get('queryResult').get('parameters').get('train_name')
@@ -203,7 +203,7 @@ class EtaActivities:
             return jsonify({
                 "queryResult" : {
                     "action" : "ETA_delayed_response",
-                    "fulfillmentText": trains + stations
+                    "fulfillmentText": "Oops! Looks like there are no trains and stations like you mentioned",
                 }
             })
 
@@ -259,7 +259,7 @@ class EtaActivities:
             else :
                 response = station_name + " station is not in the route of the requested Train"
         if data['response_code'] == 210 :
-            response = "Train does not run on the date queried. Please enter correct details."
+            response = "Looks like your train does not run on the date queried"
         if data['response_code'] == 230 :
             response = "Invalid date chosen."
         if data['response_code'] == 404 :

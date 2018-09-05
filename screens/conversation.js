@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { Text, View,StyleSheet,TextInput,FlatList,Keyboard } from 'react-native';
+import { Text, View,StyleSheet,TextInput,FlatList, TouchableOpacity, Image } from 'react-native';
 import { Dialogflow_V2 } from 'react-native-dialogflow'
 import { renderUserText, renderWelcomeText } from './renderText'
 import { renderPNR } from './renderPNR'
@@ -11,9 +11,11 @@ class Conversation extends Component{
     super()
     this.state = {
       userQuery : '',
-      flatListData : []
+      flatListData : [],
+      isLoading : false
     }
     this.ETAPickerResponserHandler = this.ETAPickerResponserHandler.bind(this);
+    this.toggleLoadingState = this.toggleLoadingState.bind(this);
   }
 
   componentDidMount(){
@@ -66,7 +68,8 @@ class Conversation extends Component{
     }
     this.setState({
       flatListData : [...this.state.flatListData,item],
-      userQuery : ''
+      userQuery : '',
+      isLoading : true
     })
     Dialogflow_V2.requestQuery(
       text,
@@ -77,7 +80,10 @@ class Conversation extends Component{
     );
   }
   fetchActualTrainStationData(result){
-    fetch('https://acf0eb4b.ngrok.io/delayedResponse',{
+    this.setState({
+      isLoading : true
+    })
+    fetch('https://19187e46.ngrok.io/delayedResponse',{
       method:'POST',
       headers:{
         Accept:'application/json',
@@ -91,7 +97,8 @@ class Conversation extends Component{
     .then((response) => response.json())
     .then((responseJson) => {
         this.setState({
-          flatListData : [...this.state.flatListData,responseJson]
+          flatListData : [...this.state.flatListData,responseJson],
+          isLoading : false
         })
     })
     .catch((error) => {
@@ -99,9 +106,12 @@ class Conversation extends Component{
       });
   }
   parseDialogFlowResponse(result){
-    console.log(result)
+    if ( result.hasOwnProperty('webhookStatus') ){
+      result.queryResult['fulfillmentText'] = "Oops! I missed it. Please try Again"
+    }
     this.setState({
-      flatListData : [...this.state.flatListData,result]
+      flatListData : [...this.state.flatListData,result],
+      isLoading : false
     })
     if( result.queryResult.action == 'ETA_station_input' ){
       this.fetchActualTrainStationData(result)
@@ -128,7 +138,10 @@ class Conversation extends Component{
       return renderPNR(item)
     }
     if ( item.item.queryResult.action.includes('ETA')){
-      return <ETA item = {item} action = {this.ETAPickerResponserHandler} />
+      return <ETA item = {item} action = {this.ETAPickerResponserHandler} toggle = {this.toggleLoadingState} />
+    }
+    if ( item.item.queryResult.action.includes('smalltalk')){
+      return renderWelcomeText(item)
     }
   }
   renderSeparator = () => {
@@ -142,14 +155,27 @@ class Conversation extends Component{
       />
     );
   };
+  renderFooter = () => {
+    if ( this.state.isLoading == false ){
+      return null
+    }
+    return (
+      <View>
+        <Text>Railways Agent is typing...</Text>
+      </View>
+    )
+  }
   ETAPickerResponserHandler(result) {
-    console.log("this is called")
-    console.log(result)
     this.setState({
       flatListData : [...this.state.flatListData,result]
     })
-    console.log('flatListData');
-    console.log(this.state.flatListData)
+  }
+  toggleLoadingState() {
+    this.setState({
+      isLoading : !this.state.isLoading
+    })
+    this.fl.scrollToEnd({ animated : true })
+    setTimeout( () => this.fl.scrollToEnd({ animated : true }) ,500)
   }
   render(){
     return(
@@ -161,19 +187,29 @@ class Conversation extends Component{
             keyExtractor = { (item, index) => index.toString() }
             ref = {(c) => this.fl = c}
             onLayout = { () => this.fl.scrollToEnd( { animated: true } ) }
-            ItemSeparatorComponent={this.renderSeparator}
+            ItemSeparatorComponent = {this.renderSeparator}
+            ListFooterComponent = { this.renderFooter }
           />
         </View>
-        <View>
-          <TextInput
-            style = { styles.TextInput }
-            underlineColorAndroid = '#0ba03d'
-            onChangeText = { (text) => this.setState({userQuery:text}) }
-            onSubmitEditing = { () => { this.requestDialogflow(this.state.userQuery)}}
-            ref = {input => { this.textInput = input }}
-            blurOnSubmit = {false}
-            placeholder = 'Type your message here.'
-          />
+        <View style = {styles.TextInputView} >
+          <View style = {styles.TextInputContainer} >
+            <TextInput
+              style = { styles.TextInput }
+              underlineColorAndroid = '#0ba03d'
+              onChangeText = { (text) => this.setState({userQuery:text}) }
+              onSubmitEditing = { () => { this.requestDialogflow(this.state.userQuery)}}
+              ref = {input => { this.textInput = input }}
+              blurOnSubmit = {false}
+              placeholder = 'Type your message here.'
+            />
+          </View>
+          <View style = { styles.SendButtonContainer } >
+            <TouchableOpacity onPress = { () => { this.requestDialogflow(this.state.userQuery)}} >
+              <View>
+                <Image style = {{ width:30,height:30 }} source = { require('./send.png') } />
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     );
@@ -188,16 +224,26 @@ const styles = StyleSheet.create(
       justifyContent: 'space-between',
     },
     TextInputView : {
-      flex : 1,
+      flexDirection : 'row',
+      borderStyle : 'solid',
+      borderColor : '#a9a9a9',
+      borderTopWidth : 1,
+      borderBottomWidth : 1
     },
     flatListView : {
       flex : 7,
     },
     TextInput : {
       backgroundColor : '#ffffff',
-      borderStyle : 'solid',
-      borderColor : '#a9a9a9',
-      borderWidth : 1
+    },
+    TextInputContainer : {
+      flex : 7
+    },
+    SendButtonContainer : {
+      justifyContent : 'center',
+      alignItems : 'center',
+      backgroundColor : '#0ba03d',
+      flex : 1
     }
   }
 )

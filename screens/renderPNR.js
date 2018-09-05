@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
-import { Text, View, StyleSheet, Image } from 'react-native';
+import { Text, View } from 'react-native';
 import { styles } from './message_style'
+import TrainLogo from './TrainLogo'
 
 export const renderPNR = (item) => {
   response = item.item.queryResult
@@ -9,10 +10,8 @@ export const renderPNR = (item) => {
     data = response.webhookPayload
     return(
       <View style = { styles.MessageContainerBot } >
-        <View>
-          <Image style = { styles.iconStyle } source = { require('./train.png') } />
-        </View>
-        <View style = {styles.MessageView}>
+        <TrainLogo />
+        <View style = {styles.MessageView} >
           <Text style = { styles.MessageText } >{response.fulfillmentText}</Text>
           <Text style = { styles.MessageText } >Train Name: {data.train.name}</Text>
           <Text style = { styles.MessageText } >Train Number: {data.train.number}</Text>
@@ -43,9 +42,7 @@ export const renderPNR = (item) => {
   else{
     return(
       <View style = { styles.MessageContainerBot } >
-        <View>
-          <Image style = { styles.iconStyle } source = { require('./train.png') } />
-        </View>
+        <TrainLogo />
         <View style = {styles.MessageView}>
           <Text style = { styles.MessageText } >{response.fulfillmentText}</Text>
         </View>

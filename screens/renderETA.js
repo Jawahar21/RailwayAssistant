@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
-import { Text, View, StyleSheet, Image,Picker,TouchableOpacity } from 'react-native';
+import { Text, View, Picker,TouchableOpacity } from 'react-native';
 import { styles } from './message_style'
 import { renderWelcomeText } from './renderText'
 import { Dialogflow_V2 } from 'react-native-dialogflow'
+import TrainLogo from './TrainLogo'
 
 class ETA extends Component{
 
@@ -22,7 +23,8 @@ class ETA extends Component{
         this.state = {
           pickerTrain : trains[0].number,
           pickerStation : stations[0].name,
-          confirmState : false
+          confirmState : false,
+          pickerEnabled : true
         }
       }
     }
@@ -33,18 +35,22 @@ class ETA extends Component{
       date = props.item.item.queryResult.webhookPayload.date
       this.state = {
         pickedDate : date[0],
+        pickerEnabled : true
       }
     }
   }
   requestDialogflow(query){
+    this.props.toggle()
     this.setState({
-      confirmState : true
+      confirmState : true,
+      pickerEnabled : false
     })
     console.log('Hit')
     Dialogflow_V2.requestQuery(
       query,
       result => {
         this.props.action(result)
+        this.props.toggle()
       },
       error=>console.log(error)
     );
@@ -61,16 +67,15 @@ class ETA extends Component{
         stations = item.item.queryResult.webhookPayload.stations
         return(
           <View style = { styles.MessageContainerBot } >
-            <View>
-              <Image style = { styles.iconStyle } source = { require('./train.png') } />
-            </View>
-            <View>
+            <TrainLogo />
+            <View style = {{ width : '100%'}} >
               <Text style = { styles.MessageText } >{item.item.queryResult.fulfillmentText}</Text>
               <Picker
                 selectedValue = {this.state.pickerTrain}
                 prompt = "Select Train"
                 mode = 'dialog'
                 onValueChange = { (itemValue, itemIndex) => {this.setState({pickerTrain: itemValue})} }
+                enabled = { this.state.pickerEnabled }
               >
               {
                 trains.map((p,i) => {
@@ -85,6 +90,7 @@ class ETA extends Component{
                 prompt="Select Station"
                 mode='dialog'
                 onValueChange = {(itemValue, itemIndex) => this.setState( { pickerStation : itemValue } ) }
+                enabled = { this.state.pickerEnabled }
               >
               {
                 stations.map((p,i) => {
@@ -94,7 +100,9 @@ class ETA extends Component{
                 })
               }
               </Picker>
-              <TouchableOpacity onPress = { () => this.requestDialogflow(this.state.pickerTrain +" "+this.state.pickerStation) } disabled = {this.state.confirmState} >
+              <TouchableOpacity
+               onPress = { () => this.requestDialogflow(this.state.pickerTrain +" "+this.state.pickerStation) }
+               disabled = {this.state.confirmState} >
                 <View>
                   <Text style = { styles.MessageText } >Confirm</Text>
                 </View>
@@ -110,12 +118,11 @@ class ETA extends Component{
         dates = item.item.queryResult.webhookPayload.date
         return(
           <View style = { styles.MessageContainerBot } >
-            <View>
-              <Image style = { styles.iconStyle } source = { require('./train.png') } />
-            </View>
-            <View >
+            <TrainLogo />
+            <View style = {{ width : '100%'}} >
               <Text style = { styles.MessageText } >{item.item.queryResult.fulfillmentText}</Text>
               <Picker
+                enabled = { this.state.pickerEnabled }
                 selectedValue = {this.state.pickedDate}
                 prompt = "Select Date"
                 mode = 'dialog'

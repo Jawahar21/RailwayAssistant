@@ -18,7 +18,8 @@ export const styles = StyleSheet.create(
     },
     MessageText : {
       fontSize : 18,
-      color : '#000000'
+      color : '#000000',
+      flexWrap: 'wrap'
     },
     MessageView : {
       paddingLeft : 10,
