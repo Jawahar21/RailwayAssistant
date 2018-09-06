@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from pnr_tasks import PNRActivities
 from eta_tasks import EtaActivities
-
+from train_status_tasks import TrainStatusActivities
 
 class Activites:
 
@@ -13,6 +13,8 @@ class Activites:
             return Activites().callPNRActivities(action,webhook_req)
         if 'ETA' in action :
             return Activites().callEtaActivities(action,webhook_req)
+        if 'train_status' in action :
+            return Activites().callTrainStatusActivities(action, webhook_req)
 
     def callPNRActivities(self,activity,webhook_req):
         if activity == 'pnr_status_main':
@@ -40,7 +42,20 @@ class Activites:
         if activity == 'ETA_train_input.ETA_train_startdate' :
             return EtaActivities().ETA_Response(webhook_req)
 
+    def callTrainStatusActivities(self,activity,webhook_req):
+        if activity == 'train_status_main':
+            return TrainStatusActivities().trainStatusMainActivity(webhook_req)
+        if activity == 'train_status.train_number_input':
+            return TrainStatusActivities().TrainStartDateActivity(webhook_req)
+        if activity == 'train_status.train_starting_date':
+            return TrainStatusActivities().trainStatusResponse(webhook_req)
+
     def callDelayedResoponse(self):
         print("Resquest HIT")
         req_obj = request.get_json()
-        return EtaActivities().callEtaDelayedResoponse(req_obj)
+        print(req_obj)
+        if req_obj.get('activity') == 'ETA' :
+            return EtaActivities().callEtaDelayedResoponse(req_obj)
+
+        if req_obj.get('activity') == 'train_status' :
+            return TrainStatusActivities().callTrainStatusDelayedResponse(req_obj)

@@ -43,13 +43,13 @@ class RailwayDB:
                 })
             if result["response_code"] == 405 or result["response_code"] == 500 :
                 return jsonify({
-                    "fulfillmentText": "Server Not available. Inconvinence regretted."
+                    "fulfillmentText": "Oops! I missed it. Please try again."
                 })
             else:
                 return False
         except:
             return jsonify({
-                "fulfillmentText": "Server Not available. Inconvinence regretted."
+                "fulfillmentText": "Oops! I missed it. Please try again."
             })
 
     def getTrainNameNumber(self,train_detail):
@@ -117,11 +117,9 @@ class RailwayDB:
             if result["response_code"] == 404 :
                 return "Oops! There's no train with the mentioned train number."
             if result["response_code"] == 405 or result["response_code"] == 500 :
-                return "Server Not available. Inconvinence regretted."
+                return "Oops! I missed it. Please try again."
         except:
-            return jsonify({
-                "fulfillmentText": "Server Not available. Inconvinence regretted."
-            })
+            return "Oops! I missed it. Please try again."
 
     def getTrainAutoSuggest(self,train_name):
         try:
@@ -168,11 +166,9 @@ class RailwayDB:
             if result["response_code"] == 404 :
                 return "Oops! There's no train with the mentioned train details",
             if result["response_code"] == 405 or result["response_code"] == 500 :
-                return "Server Not available. Inconvinence regretted."
+                return "Oops! I missed it. Please try again."
         except:
-            return jsonify({
-                "fulfillmentText": "Server Not available. Inconvinence regretted."
-            })
+            return "Oops! I missed it. Please try again."
 
     def getStationAutoSuggest(self,station_name):
         try:
@@ -216,11 +212,9 @@ class RailwayDB:
             if result["response_code"] == 404 :
                 return "Oops! I could not find the station from the entered Station Name.",
             if result["response_code"] == 405 or result["response_code"] == 500 :
-                return "Server Not available. Inconvinence regretted."
+                return "Oops! I missed it. Please try again."
         except:
-            return jsonify({
-                "fulfillmentText": "Server Not available. Inconvinence regretted."
-            })
+            return "Oops! I missed it. Please try again."
 
     def getLiveTrainStatus(self,train_number,date):
         try:
@@ -233,7 +227,7 @@ class RailwayDB:
             # result = {
             #   "response_code": 200,
             #   "debit": 3,
-            #   "position": "Train has reached Destination and late by 5 minutes",
+            #   "position": "Train is at Source and late by 5 minutes",
             #   "train": {
             #     "number": "12046",
             #     "name": "CDG NDLS SHTBDI"

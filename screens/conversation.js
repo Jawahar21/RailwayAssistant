@@ -4,6 +4,7 @@ import { Dialogflow_V2 } from 'react-native-dialogflow'
 import { renderUserText, renderWelcomeText } from './renderText'
 import { renderPNR } from './renderPNR'
 import ETA  from './renderETA'
+import TrainStatus  from './renderTrainStatus'
 
 class Conversation extends Component{
 
@@ -83,13 +84,14 @@ class Conversation extends Component{
     this.setState({
       isLoading : true
     })
-    fetch('https://19187e46.ngrok.io/delayedResponse',{
+    fetch('https://4d08e4ce.ngrok.io/delayedResponse',{
       method:'POST',
       headers:{
         Accept:'application/json',
         'Content-Type': 'application/json'
       },
       body:JSON.stringify({
+        activity : result.queryResult.webhookPayload.activity,
         train_name : result.queryResult.webhookPayload.train_name,
         station_name : result.queryResult.webhookPayload.station_name,
       }),
@@ -106,8 +108,11 @@ class Conversation extends Component{
       });
   }
   parseDialogFlowResponse(result){
+    console.log(result)
     if ( result.hasOwnProperty('webhookStatus') ){
-      result.queryResult['fulfillmentText'] = "Oops! I missed it. Please try Again"
+      if ( result.webhookStatus.hasOwnProperty('code')){
+          result.queryResult['fulfillmentText'] = "Oops! I missed it. Please try Again"
+      }
     }
     this.setState({
       flatListData : [...this.state.flatListData,result],
@@ -123,6 +128,14 @@ class Conversation extends Component{
         }
       }
     }
+    if( result.queryResult.action == 'train_status_main'  ){
+      if ( result.queryResult.hasOwnProperty('webhookPayload')){
+        if ( result.queryResult.webhookPayload.actual_data == false){
+          this.fetchActualTrainStationData(result)
+        }
+      }
+    }
+
   }
   renderConversation(item){
     if ( item.item.type == 'userText' ){
@@ -142,6 +155,9 @@ class Conversation extends Component{
     }
     if ( item.item.queryResult.action.includes('smalltalk')){
       return renderWelcomeText(item)
+    }
+    if ( item.item.queryResult.action.includes('train_status')) {
+      return <TrainStatus item = {item} action = {this.ETAPickerResponserHandler} toggle = {this.toggleLoadingState} />
     }
   }
   renderSeparator = () => {

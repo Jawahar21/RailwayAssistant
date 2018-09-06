@@ -19,7 +19,7 @@ class EtaActivities:
                 print(stations)
                 trains.append(train_detail)
                 print(trains)
-                if ( type(trains) is list and type(stations) is list ):
+                if ( type(train_detail) is dict and type(stations) is list ):
                     return jsonify({
                         "fulfillmentText" : "Do you mean?",
                         "outputContexts" : outputContexts,
@@ -29,15 +29,15 @@ class EtaActivities:
                             "stations" : stations
                         }
                     })
-                if ( type(trains) is not list and type(stations) is list ):
+                if ( type(train_detail) is not dict and type(stations) is list ):
                     return jsonify({
                         "fulfillmentText" : trains,
                     })
-                if ( type(trains) is list and type(stations) is not list ):
+                if ( type(train_detail) is dict and type(stations) is not list ):
                     return jsonify({
                         "fulfillmentText" : stations,
                     })
-                if ( type(trains) is not list and type(stations) is not list ):
+                if ( type(train_detail) is not dict and type(stations) is not list ):
                     return jsonify({
                         "fulfillmentText" : "Oops! Looks like there are no trains and stations like you mentioned",
                     })
@@ -64,7 +64,8 @@ class EtaActivities:
                     "payload" : {
                         "actual_data" : False,
                         "train_name" : train_name,
-                        "station_name" : station_name
+                        "station_name" : station_name,
+                        "activity" : "ETA"
                     }
                 })
                 print( parameters.get('station_name') )
@@ -112,7 +113,8 @@ class EtaActivities:
             "payload" : {
                 "actual_data" : False,
                 "train_name" : train_name,
-                "station_name" : station_name
+                "station_name" : station_name,
+                "activity" : "ETA"
             }
         })
 
@@ -133,7 +135,7 @@ class EtaActivities:
             print(stations)
             trains.append(train_detail)
             print(trains)
-            if ( type(trains) is list and type(stations) is list ):
+            if ( type(train_detail) is dict and type(stations) is list ):
                 return jsonify({
                     "fulfillmentText" : "Do you mean?",
                     "outputContexts" : outputContexts,
@@ -143,15 +145,15 @@ class EtaActivities:
                         "stations" : stations
                     }
                 })
-            if ( type(trains) is not list and type(stations) is list ):
+            if ( type(train_detail) is not dict and type(stations) is list ):
                 return jsonify({
                     "fulfillmentText" : trains,
                 })
-            if ( type(trains) is list and type(stations) is not list ):
+            if ( type(train_detail) is dict and type(stations) is not list ):
                 return jsonify({
                     "fulfillmentText" : stations,
                 })
-            if ( type(trains) is not list and type(stations) is not list ):
+            if ( type(train_detail) is not dict and type(stations) is not list ):
                 return jsonify({
                     "fulfillmentText" : "Oops! Looks like there are no trains and stations like you mentioned",
                 })
@@ -163,7 +165,8 @@ class EtaActivities:
                 "payload" : {
                     "actual_data" : False,
                     "train_name" : train_name,
-                    "station_name" : station_name
+                    "station_name" : station_name,
+                    "activity" : "ETA"
                 }
             })
 
@@ -210,7 +213,7 @@ class EtaActivities:
     def EtaTrainStartDateActivity(self,webhook_req):
         outputContexts = webhook_req.get('queryResult').get('outputContexts')
         return jsonify({
-            "fulfillmentText": "Tell me the Start Date of this train",
+            "fulfillmentText": "When did this train start?",
             "outputContexts" : outputContexts,
             "payload" : {
                 "date" : ["Today","Yesterday","2 days Ago","3 days ago"]
@@ -259,13 +262,13 @@ class EtaActivities:
             else :
                 response = station_name + " station is not in the route of the requested Train"
         if data['response_code'] == 210 :
-            response = "Looks like your train does not run on the date queried"
+            response = "Looks like your train does not run on the date you mentioned"
         if data['response_code'] == 230 :
-            response = "Invalid date chosen."
+            response = "Try again with a valid date"
         if data['response_code'] == 404 :
-            response = "No data found for your requested Train and Station entries"
+            response = "I could not find any details for the requested Train and Station entries"
         if data['response_code'] == 405 :
-            response = "Server unavailable, Inconvinence regretted"
+            response = "Oops! I missed it. Please try again"
         return jsonify({
             "fulfillmentText": response
         })
