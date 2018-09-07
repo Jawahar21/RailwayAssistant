@@ -53,6 +53,7 @@ class Conversation extends Component{
             Dialogflow_V2.LANG_ENGLISH_US,
             'railwayassistant-977e1'
     );
+    
   }
   componentDidUpdate() {
     this.fl.scrollToEnd({ animated : true })
@@ -80,11 +81,12 @@ class Conversation extends Component{
       error=> { console.log("Error situation!!!!!!");console.log(error)}
     );
   }
+
   fetchActualTrainStationData(result){
     this.setState({
       isLoading : true
     })
-    fetch('https://4d08e4ce.ngrok.io/delayedResponse',{
+    fetch('https://d43ffe67.ngrok.io/delayedResponse',{
       method:'POST',
       headers:{
         Accept:'application/json',

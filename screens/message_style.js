@@ -14,7 +14,7 @@ export const styles = StyleSheet.create(
       flexDirection: 'row',
       justifyContent : 'flex-start',
       alignItems : 'center',
-      backgroundColor : '#e0ffff'
+      backgroundColor : '#e0ffff',
     },
     MessageText : {
       fontSize : 18,
@@ -23,11 +23,11 @@ export const styles = StyleSheet.create(
     },
     MessageView : {
       paddingLeft : 10,
-      paddingRight : 5
+      paddingRight : 20
     },
     iconStyle : {
       height : 30,
-      width : 30
+      width : 30,
     }
   }
 )

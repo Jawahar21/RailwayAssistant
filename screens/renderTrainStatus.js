@@ -53,27 +53,32 @@ class TrainStatus extends Component {
         return (
           <View style = { styles.MessageContainerBot } >
             <TrainLogo />
-            <View style = {{ width : '100%'}} >
-              <Text style = { styles.MessageText } >{item.item.queryResult.fulfillmentText}</Text>
-              <Picker
-                selectedValue = {this.state.pickerTrain}
-                prompt = "Select Train"
-                mode = 'dialog'
-                onValueChange = { (itemValue, itemIndex) => {this.setState({pickerTrain: itemValue})} }
-                enabled = { this.state.pickerEnabled }
-              >
-              {
-                trains.map((p,i) => {
-                  return(
-                    <Picker.Item key={i} value={p.number} label={p.name + "-" + p.number} />
-                  )
-                })
-              }
-              </Picker>
+            <View style = {{ flex:1 }} >
+              <View style = { styles.MessageView } >
+                <Text style = { styles.MessageText } >{item.item.queryResult.fulfillmentText}</Text>
+              </View>
+              <View >
+                <Picker
+                  style = {{ borderWidth : 3,borderColor: 'red' ,paddingRight: 20, flex:1 }}
+                  selectedValue = {this.state.pickerTrain}
+                  prompt = "Select Train"
+                  mode = 'dialog'
+                  onValueChange = { (itemValue, itemIndex) => {this.setState({pickerTrain: itemValue})} }
+                  enabled = { this.state.pickerEnabled }
+                >
+                {
+                  trains.map((p,i) => {
+                    return(
+                      <Picker.Item key={i} value={p.number} label={p.name + "-" + p.number} />
+                    )
+                  })
+                }
+                </Picker>
+              </View>
               <TouchableOpacity
                onPress = { () => this.requestDialogflow( this.state.pickerTrain ) }
                disabled = {this.state.confirmState} >
-                <View>
+                <View style = { styles.MessageView } >
                   <Text style = { styles.MessageText } >Confirm</Text>
                 </View>
               </TouchableOpacity>
@@ -87,25 +92,29 @@ class TrainStatus extends Component {
       return (
         <View style = { styles.MessageContainerBot } >
           <TrainLogo />
-          <View style = {{ width : '100%'}} >
-            <Text style = { styles.MessageText } >{item.item.queryResult.fulfillmentText}</Text>
-            <Picker
-              enabled = { this.state.pickerEnabled }
-              selectedValue = {this.state.pickedDate}
-              prompt = "Select Date"
-              mode = 'dialog'
-              onValueChange = { (itemValue, itemIndex) => {this.setState({pickedDate: itemValue})} }
-            >
-            {
-              dates.map( (p,i) => {
-                return(
-                  <Picker.Item key = {i} value = {p} label = {p} />
-                )
-              })
-            }
-            </Picker>
+          <View style = {{ flex:1 }} >
+            <View style = { styles.MessageView } >
+              <Text style = { styles.MessageText } >{item.item.queryResult.fulfillmentText}</Text>
+            </View>
+            <View>
+              <Picker
+                enabled = { this.state.pickerEnabled }
+                selectedValue = {this.state.pickedDate}
+                prompt = "Select Date"
+                mode = 'dialog'
+                onValueChange = { (itemValue, itemIndex) => {this.setState({pickedDate: itemValue})} }
+              >
+              {
+                dates.map( (p,i) => {
+                  return(
+                    <Picker.Item key = {i} value = {p} label = {p} />
+                  )
+                })
+              }
+              </Picker>
+            </View>
             <TouchableOpacity onPress = { () => this.requestDialogflow(this.state.pickedDate) } disabled = {this.state.confirmState} >
-              <View>
+              <View style = { styles.MessageView } >
                 <Text style = { styles.MessageText } >Confirm</Text>
               </View>
             </TouchableOpacity>
