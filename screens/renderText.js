@@ -7,10 +7,10 @@ import TrainLogo from './TrainLogo'
 export const renderUserText = (item) => {
   return(
     <View style = { styles.MessageContainerUser }>
-      <UserLogo />
-      <View style = { styles.MessageView } >
+      <View style = { styles.MessageViewUser } >
         <Text style = { styles.MessageText } >{item.item.data}</Text>
       </View>
+      <UserLogo />
     </View>
   );
 }
@@ -19,7 +19,7 @@ export const renderWelcomeText = (item) => {
   return(
     <View style = { styles.MessageContainerBot } >
       <TrainLogo />
-      <View style = { styles.MessageView }>
+      <View style = { styles.MessageViewBot }>
         <Text style = { styles.MessageText } >{item.item.queryResult.fulfillmentText}</Text>
       </View>
     </View>

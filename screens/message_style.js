@@ -4,26 +4,48 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create(
   {
     MessageContainerUser : {
-      padding : 10,
+      padding : 4,
       flexDirection: 'row',
-      justifyContent : 'flex-start',
+      justifyContent : 'flex-end',
       alignItems : 'center',
     },
     MessageContainerBot : {
-      padding : 10,
+      padding : 4,
       flexDirection: 'row',
       justifyContent : 'flex-start',
       alignItems : 'center',
-      backgroundColor : '#e0ffff',
     },
     MessageText : {
+      flex : 1,
       fontSize : 18,
       color : '#000000',
       flexWrap: 'wrap'
     },
-    MessageView : {
-      paddingLeft : 10,
-      paddingRight : 20
+    MessageViewUser : {
+      padding : 10,
+      marginLeft : 35,
+      marginRight : 8,
+      marginVertical : 2,
+      backgroundColor : '#EFFFD0',
+      borderRadius : 5,
+      elevation: 3,
+
+    },
+    MessageViewBot : {
+      padding : 10,
+      marginLeft : 8,
+      marginRight : 35,
+      marginVertical : 1,
+      backgroundColor : '#ffffff',
+      borderRadius : 5,
+      elevation: 3
+    },
+    iconViewStyle : {
+      borderStyle : 'solid',
+      borderColor : '#ffffff',
+      borderWidth : 2,
+      elevation:3,
+      borderRadius : 50
     },
     iconStyle : {
       height : 30,

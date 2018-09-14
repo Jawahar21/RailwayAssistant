@@ -10,7 +10,6 @@ class TrainStatus extends Component {
 
   constructor(props){
     super(props)
-    console.log(props);
     if ( props.item.item.queryResult.action == 'train_status_main' || props.item.item.queryResult.action == 'train_status_delayed_response' ){
       if ( props.item.item.queryResult.hasOwnProperty('webhookPayload') && props.item.item.queryResult.webhookPayload.actual_data ){
         trains = props.item.item.queryResult.webhookPayload.trains
@@ -25,25 +24,57 @@ class TrainStatus extends Component {
       date = props.item.item.queryResult.webhookPayload.date
       this.state = {
         pickedDate : date[0],
+        confirmState : false,
         pickerEnabled : true
       }
     }
   }
   requestDialogflow(query){
+    console.log("Hit")
     this.props.toggle()
     this.setState({
       confirmState : true,
       pickerEnabled : false
     })
-    console.log('Hit')
     Dialogflow_V2.requestQuery(
       query,
       result => {
-        this.props.action(result)
-        this.props.toggle()
+        this.parseDialogFlowResponse(result)
       },
       error=>console.log(error)
     );
+  }
+  parseDialogFlowResponse(result){
+    this.props.action(result)
+    this.props.toggle()
+    if ( result.queryResult.hasOwnProperty('webhookPayload')) {
+      if( result.queryResult.webhookPayload.activity == 'TrainStatus_Delayed_Final_Response') {
+        this.fetchTrainStatusFinalResponse(result)
+      }
+    }
+  }
+  fetchTrainStatusFinalResponse(result){
+    this.props.toggle()
+    fetch('https://6b85fe6c.ngrok.io/delayedResponse',{
+      method:'POST',
+      headers:{
+        Accept:'application/json',
+        'Content-Type': 'application/json'
+      },
+      body:JSON.stringify({
+        activity : result.queryResult.webhookPayload.activity,
+        outputContexts : result.queryResult.outputContexts,
+        date : result.queryResult.webhookPayload.date
+      }),
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+      this.props.action(responseJson)
+      this.props.toggle()
+    })
+    .catch((error) => {
+        console.error(error);
+      });
   }
   render(){
     item = this.props.item

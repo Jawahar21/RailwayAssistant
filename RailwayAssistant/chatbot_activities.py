@@ -54,8 +54,15 @@ class Activites:
         print("Resquest HIT")
         req_obj = request.get_json()
         print(req_obj)
-        if req_obj.get('activity') == 'ETA' :
-            return EtaActivities().callEtaDelayedResoponse(req_obj)
+        if req_obj.get('activity') == 'ETA_Delayed_Picker_Response' :
+            return EtaActivities().etaDelayedPickerResoponse(req_obj)
 
-        if req_obj.get('activity') == 'train_status' :
-            return TrainStatusActivities().callTrainStatusDelayedResponse(req_obj)
+        if req_obj.get('activity') == 'ETA_Delayed_Final_Response' :
+            return EtaActivities().ETA_Delayed_Response(req_obj)
+
+        if req_obj.get('activity') == 'TrainStatus_Delayed_Picker_Response' :
+            return TrainStatusActivities().trainStatusPickerDelayedResponse(req_obj)
+
+        if req_obj.get('activity') == 'TrainStatus_Delayed_Final_Response' :
+            print("Inisde deplayed final response")
+            return TrainStatusActivities().trainStatusDelayedResponse(req_obj)

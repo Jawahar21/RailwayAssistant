@@ -33,7 +33,7 @@ class TrainStatusActivities :
                 "payload" : {
                     "actual_data" : False,
                     "train_name" : train_name,
-                    "activity" : "train_status"
+                    "activity" : "TrainStatus_Delayed_Picker_Response"
                 }
             })
 
@@ -41,7 +41,7 @@ class TrainStatusActivities :
             "fulfillmentText" : "Testing"
         })
 
-    def callTrainStatusDelayedResponse(self,data):
+    def trainStatusPickerDelayedResponse(self,data):
         trains = RailwayDB().getTrainAutoSuggest(data.get('train_name'))
         print(trains)
         if ( type(trains) is list ):
@@ -74,19 +74,32 @@ class TrainStatusActivities :
         })
 
     def trainStatusResponse(self,webhook_req):
-        train_number = ''
-        response = ''
-        print("Herr")
         outputContexts = webhook_req.get('queryResult').get('outputContexts')
         date = webhook_req.get('queryResult').get('parameters').get('date')
         print(date)
         parsed_date = date[8:10] + "-"+date[5:7]+"-"+date[0:4]
-        print(parsed_date)
+        return jsonify({
+            "fulfillmentText": "Wait for a moment!",
+            "outputContexts" : outputContexts,
+            "payload" : {
+                "actual_data" : False,
+                "date" : parsed_date,
+                "activity" : "TrainStatus_Delayed_Final_Response"
+            }
+        })
+
+    def trainStatusDelayedResponse(self,webhook_req):
+        train_number = ''
+        response = ''
+        print("Herr")
+        date = webhook_req.get('date')
+        outputContexts = webhook_req.get('outputContexts')
+        print(date)
         for context in outputContexts :
             if ( 'train_number_input-followup' in context.get('name') ):
                 train_number = int(context.get('parameters').get('train_number'))
                 break
-        data = RailwayDB().getLiveTrainStatus(train_number, parsed_date)
+        data = RailwayDB().getLiveTrainStatus(train_number, date)
         print(data)
         if data['response_code'] == 200 :
             position = data['position']
@@ -94,12 +107,22 @@ class TrainStatusActivities :
             if 'Source' in data['position'] :
                 station_data = data.get('route')[0]
                 station_name = station_data.get('station').get('name')
-                response = position.replace( 'Source',station_name )
+                words = position.split(" ")
+                for word in words:
+                    response = response + word + " "
+                    if word == 'Source':
+                        response = response + "i.e.., " + station_name + " "
+                # response = position.replace( 'Source',station_name )
                 print (response)
             elif 'Destination' in data['position'] :
                 station_data = data.get('route')[ len(data.get('route')) - 1 ]
                 station_name = station_data.get('station').get('name')
-                response = position.replace( 'Destination',station_name )
+                words = position.split(" ")
+                for word in words:
+                    response = response + word + " "
+                    if word == 'Destination':
+                        response = response + "i.e.., " + station_name + " "
+                # response = position.replace( 'Destination',station_name )
                 print (response)
             else :
                 response = position
@@ -110,10 +133,10 @@ class TrainStatusActivities :
         if data['response_code'] == 404 :
             response = "I could not find any live status for the requested Train"
         if data['response_code'] == 405 :
-            response = "Oops! I missed it. Please try again"
+            response = "Oops! I could not communicate with the Indian Railways. There seems to be an issue with them."
         return jsonify({
-            "fulfillmentText": response
-        })
-        return jsonify({
-            "fulfillmentText": "Works",
+            "queryResult" : {
+                "action" : "train_status.TrainStatus_Delayed_Final_Response",
+                "fulfillmentText": response
+            }
         })

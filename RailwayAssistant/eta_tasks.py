@@ -65,7 +65,7 @@ class EtaActivities:
                         "actual_data" : False,
                         "train_name" : train_name,
                         "station_name" : station_name,
-                        "activity" : "ETA"
+                        "activity" : "ETA_Delayed_Picker_Response"
                     }
                 })
                 print( parameters.get('station_name') )
@@ -114,7 +114,7 @@ class EtaActivities:
                 "actual_data" : False,
                 "train_name" : train_name,
                 "station_name" : station_name,
-                "activity" : "ETA"
+                "activity" : "ETA_Delayed_Picker_Response"
             }
         })
 
@@ -166,11 +166,11 @@ class EtaActivities:
                     "actual_data" : False,
                     "train_name" : train_name,
                     "station_name" : station_name,
-                    "activity" : "ETA"
+                    "activity" : "ETA_Delayed_Picker_Response"
                 }
             })
 
-    def callEtaDelayedResoponse(self,data):
+    def etaDelayedPickerResoponse(self,data):
         print(data)
         trains = RailwayDB().getTrainAutoSuggest(data.get('train_name'))
         stations = RailwayDB().getStationAutoSuggest(data.get('station_name'))
@@ -220,16 +220,29 @@ class EtaActivities:
             }
         })
 
+
     def ETA_Response(self,webhook_req):
-        print("Here at ETA response")
-        response = ''
-        station_data = ''
-        train_number = ''
-        station_name = ''
         outputContexts = webhook_req.get('queryResult').get('outputContexts')
         date = webhook_req.get('queryResult').get('parameters').get('date')
         print(date)
         parsed_date = date[8:10] + "-"+date[5:7]+"-"+date[0:4]
+        return jsonify({
+            "fulfillmentText": "Wait for a moment!",
+            "outputContexts" : outputContexts,
+            "payload" : {
+                "actual_data" : False,
+                "date" : parsed_date,
+                "activity" : "ETA_Delayed_Final_Response"
+            }
+        })
+
+    def ETA_Delayed_Response(self,webhook_req):
+        response = ''
+        station_data = ''
+        train_number = ''
+        station_name = ''
+        date = webhook_req.get('date')
+        outputContexts = webhook_req.get('outputContexts')
         for context in outputContexts :
             if ( 'eta_station_inputeta_auto_station_train_input-followup' in context.get('name') ):
                 train_number = int(context.get('parameters').get('train_number'))
@@ -243,9 +256,7 @@ class EtaActivities:
                 train_number = int(context.get('parameters').get('train_number'))
                 station_name = context.get('parameters').get('station_name')
                 break
-        print(train_number)
-        print(parsed_date)
-        data = RailwayDB().getLiveTrainStatus(train_number, parsed_date)
+        data = RailwayDB().getLiveTrainStatus(train_number, date)
         print(data)
         if data['response_code'] == 200 :
             for route in data.get('route'):
@@ -268,7 +279,10 @@ class EtaActivities:
         if data['response_code'] == 404 :
             response = "I could not find any details for the requested Train and Station entries"
         if data['response_code'] == 405 :
-            response = "Oops! I missed it. Please try again"
+            response = "Oops! I could not communicate with the Indian Railways. There seems to be an issue with them."
         return jsonify({
-            "fulfillmentText": response
+            "queryResult" : {
+                "action" : "ETA_Delayed_Final_Response",
+                "fulfillmentText": response
+            }
         })

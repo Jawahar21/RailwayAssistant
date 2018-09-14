@@ -43,7 +43,7 @@ export const renderPNR = (item) => {
     return(
       <View style = { styles.MessageContainerBot } >
         <TrainLogo />
-        <View style = {styles.MessageView}>
+        <View style = {styles.MessageViewBot }>
           <Text style = { styles.MessageText } >{response.fulfillmentText}</Text>
         </View>
       </View>

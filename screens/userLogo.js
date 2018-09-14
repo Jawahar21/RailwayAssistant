@@ -5,7 +5,7 @@ import { styles } from './message_style'
 class UserLogo extends Component{
   render(){
     return(
-      <View>
+      <View style = { styles.iconViewStyle } >
         <Image style = { styles.iconStyle } source = { require('./user.png') } />
       </View>
     )

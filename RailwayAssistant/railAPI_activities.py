@@ -5,7 +5,7 @@ class RailwayDB:
 
     def getPnrStatus(self,pnr_number):
         try :
-            api_key = '5l3edijq1u'
+            api_key = '0dfscc3g6j'
             base_url = "https://api.railwayapi.com/v2/pnr-status/pnr/"
             complete_url = base_url + str(pnr_number) + "/apikey/" + api_key + "/"
             response_ob = requests.get(complete_url)
@@ -43,18 +43,18 @@ class RailwayDB:
                 })
             if result["response_code"] == 405 or result["response_code"] == 500 :
                 return jsonify({
-                    "fulfillmentText": "Oops! I missed it. Please try again."
+                    "fulfillmentText": "Oops! I could not communicate with the Indian Railways. There seems to be an issue with them."
                 })
             else:
                 return False
         except:
             return jsonify({
-                "fulfillmentText": "Oops! I missed it. Please try again."
+                "fulfillmentText": "Oops! I could not communicate with the Indian Railways. There seems to be an issue with them."
             })
 
     def getTrainNameNumber(self,train_detail):
         try :
-            api_key = '5l3edijq1u'
+            api_key = '0dfscc3g6j'
             base_url = 'https://api.railwayapi.com/v2/name-number/train/'
             complete_url = base_url + str(int(train_detail)) + "/apikey/" + api_key + "/"
             print(complete_url)
@@ -117,14 +117,14 @@ class RailwayDB:
             if result["response_code"] == 404 :
                 return "Oops! There's no train with the mentioned train number."
             if result["response_code"] == 405 or result["response_code"] == 500 :
-                return "Oops! I missed it. Please try again."
+                return "Oops! I could not communicate with the Indian Railways. There seems to be an issue with them."
         except:
-            return "Oops! I missed it. Please try again."
+            return "Oops! I could not communicate with the Indian Railways. There seems to be an issue with them."
 
     def getTrainAutoSuggest(self,train_name):
         try:
             trains = []
-            api_key = '5l3edijq1u'
+            api_key = '0dfscc3g6j'
             base_url = 'https://api.railwayapi.com/v2/suggest-train/train/'
             complete_url = base_url + str(train_name) + "/apikey/" + api_key + "/"
             print(complete_url)
@@ -166,14 +166,14 @@ class RailwayDB:
             if result["response_code"] == 404 :
                 return "Oops! There's no train with the mentioned train details",
             if result["response_code"] == 405 or result["response_code"] == 500 :
-                return "Oops! I missed it. Please try again."
+                return "Oops! I could not communicate with the Indian Railways. There seems to be an issue with them."
         except:
-            return "Oops! I missed it. Please try again."
+            return "Oops! I could not communicate with the Indian Railways. There seems to be an issue with them."
 
     def getStationAutoSuggest(self,station_name):
         try:
             stations = []
-            api_key = '5l3edijq1u'
+            api_key = '0dfscc3g6j'
             base_url = 'https://api.railwayapi.com/v2/suggest-station/name/'
             complete_url = base_url + str(station_name) + "/apikey/" + api_key + "/"
             print(complete_url)
@@ -212,13 +212,13 @@ class RailwayDB:
             if result["response_code"] == 404 :
                 return "Oops! I could not find the station from the entered Station Name.",
             if result["response_code"] == 405 or result["response_code"] == 500 :
-                return "Oops! I missed it. Please try again."
+                return "Oops! I could not communicate with the Indian Railways. There seems to be an issue with them."
         except:
-            return "Oops! I missed it. Please try again."
+            return "Oops! I could not communicate with the Indian Railways. There seems to be an issue with them."
 
     def getLiveTrainStatus(self,train_number,date):
         try:
-            api_key = '5l3edijq1u'
+            api_key = '0dfscc3g6j'
             base_url = 'https://api.railwayapi.com/v2/live/train/'
             complete_url = base_url + str(train_number) + "/date/" + str(date) + "/apikey/" + api_key + "/"
             print(complete_url)

@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import { createStackNavigator } from 'react-navigation';
 
 import Conversation from './screens/conversation';
+import SplashScreeen from './screens/splashscreen'
 
 class Route extends Component{
   render(){
@@ -13,14 +14,25 @@ class Route extends Component{
  const RootStack = createStackNavigator(
    {
      ConversationScreen : {
-       screen : Conversation
+       screen : Conversation,
+       navigationOptions: {
+         title : 'Passengers Assistant',
+         headerStyle: {
+           backgroundColor: '#607D8B',
+         },
+         headerTintColor: '#ffffff'
+       }
      },
+     SplashScreeen : {
+       screen : SplashScreeen,
+       navigationOptions : {
+         header: null,
+       }
+     }
    },
    {
-     initialRouteName: 'ConversationScreen',
-     navigationOptions: {
-       title : 'Railways Agent'
-     }
+     initialRouteName: 'SplashScreeen',
+     headerMode: 'screen'
    }
  )
 
