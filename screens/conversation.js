@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
-import { Text, View,StyleSheet,TextInput,FlatList, TouchableOpacity, Image,Modal } from 'react-native';
+import { Text, View,StyleSheet,TextInput,FlatList, TouchableOpacity, Image } from 'react-native';
+import Modal from "react-native-modal";
 import { Dialogflow_V2 } from 'react-native-dialogflow'
 import { renderUserText, renderWelcomeText } from './renderText'
 import { renderPNR } from './renderPNR'
@@ -170,18 +171,38 @@ class Conversation extends Component{
   render(){
     return(
       <View style = {styles.container} >
-        <View>
-          <Modal
-            animationType = "slide"
-            visible = { this.state.actionsVisible }
-            onRequestClose = { () => this.toggleActionsVisibilityState() }
-            transparent ={false}
-          >
-            <View>
-              <Text>This is modal</Text>
-            </View>
-          </Modal>
-        </View>
+        <Modal
+          style = {{ paddingBottom: 50 , justifyContent : 'flex-end', alignItems : 'center' }}
+          animationType = "slide"
+          isVisible = { this.state.actionsVisible }
+          onRequestClose = { () => this.toggleActionsVisibilityState() }
+          transparent = { true }
+          backdropColor = 'transparent'
+          onBackdropPress = { () => this.toggleActionsVisibilityState() }
+          onSwipe = { () => this.toggleActionsVisibilityState() }
+          swipeDirection = 'down'
+        >
+          <View style = { styles.actionsView } >
+            <TouchableOpacity>
+              <View style = { styles.actionItem } >
+                <Image style = { styles.iconSize } source = { require('./ETA.png') } />
+                <Text style = { styles.actionsText } >ETA</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <View style = { styles.actionItem } >
+                <Image style = { styles.iconSize } source = { require('./live_status.png') } />
+                <Text style = { styles.actionsText } >Live train status</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <View style = { styles.actionItem } >
+                <Image style = { styles.iconSize } source = { require('./pnr_status.png') } />
+                <Text style = { styles.actionsText } >PNR status</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </Modal>
         <View style = {styles.flatListView}>
           <FlatList
             data = {this.state.flatListData}
@@ -249,7 +270,7 @@ const styles = StyleSheet.create(
       flex : 7,
     },
     TextInput : {
-      backgroundColor : '#F5F5F5',
+      backgroundColor : '#ffffff',
     },
     TextInputContainer : {
       flex : 5,
@@ -264,6 +285,28 @@ const styles = StyleSheet.create(
       padding : 5,
       backgroundColor : '#ffffff',
       flexDirection : 'row'
+    },
+    actionsView : {
+      backgroundColor : '#ffffff',
+      flexDirection : 'row',
+      justifyContent : 'space-between',
+      padding : 5,
+      elevation : 3,
+      borderRadius : 8,
+
+    },
+    actionsText : {
+      fontSize : 13,
+      color : '#78849E',
+    },
+    actionItem : {
+      justifyContent : 'center',
+      alignItems : 'center',
+      padding : 10
+    },
+    iconSize : {
+      width: 20,
+      height: 20
     }
   }
 )

@@ -27,7 +27,7 @@ export const styles = StyleSheet.create(
       marginRight : 8,
       marginVertical : 2,
       backgroundColor : '#EFFFD0',
-      borderRadius : 5,
+      borderRadius : 8,
       elevation: 3,
 
     },
@@ -37,7 +37,7 @@ export const styles = StyleSheet.create(
       marginRight : 35,
       marginVertical : 1,
       backgroundColor : '#ffffff',
-      borderRadius : 5,
+      borderRadius : 8,
       elevation: 3
     },
     iconViewStyle : {
